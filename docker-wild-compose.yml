@@ -98,7 +98,6 @@ services:
     labels:
       - traefik.enable=true
       - traefik.http.routers.traefik-stats.rule=Host(`stats-${SERVER}.${DOMAIN}`)
-      - traefik.http.routers.traefik-stats.tls=true
       - traefik.http.routers.traefik-stats.tls.certResolver=letsencrypt
       - traefik.http.routers.traefik-stats.entrypoints=websecure
       - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
