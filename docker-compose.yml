@@ -1,0 +1,100 @@
+---
+networks:
+  nginx_net:
+    name: nginx_net
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.118.100.0/24"
+          gateway: "10.118.100.1"
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - nginx_net
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - /docker/traefik/${SERVER}/letsencrypt:/etc/traefik/acme
+      - /docker/traefik/${SERVER}/logs:/opt/logs
+    environment:
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
+      - CLOUDFLARE_ZONE_API_TOKEN=${CLOUDFLARE_ZONE_API_TOKEN}
+      - LETS_ENCRYPT_EMAIL=${LETS_ENCRYPT_EMAIL}
+    command:
+      # access log
+      - --accesslog=true
+      - --accesslog.filepath=/opt/logs/access.log
+      - --log.filePath=/opt/logs/traefik.log
+      # Enable dashboard
+      - --api.dashboard=true
+      # Providers
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # Skip internal cert check
+      - --serversTransport.insecureSkipVerify=true
+      # Entrypoints
+      - --entrypoints=Name:http Address::80 Redirect.EntryPoint:https
+      - --entrypoints=Name:https Address::443 TLS
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entryPoints.web.forwardedHeaders.trustedIPs=10.0.0.0/8
+      - --entryPoints.websecure.forwardedHeaders.trustedIPs=10.0.0.0/8
+      # Certificates
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.email=${LETS_ENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
+      # needed so internal DNS doesn't dick with things
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      # CF Middleware
+      - --experimental.plugins.cloudflarewarp.modulename=github.com/BetterCorp/cloudflarewarp
+      - --experimental.plugins.cloudflarewarp.version=v1.3.3
+    labels:
+      # Dashboard config
+      - traefik.enable=true
+      - traefik.http.routers.traefik-dash.rule=Host(`${SERVER}.${DOMAIN}`)
+      - traefik.http.routers.traefik-dash.service=api@internal
+      #- traefik.http.routers.traefik-dash.middlewares=traefik-dash-auth
+      - traefik.http.routers.traefik-dash.tls=true
+      - traefik.http.routers.traefik-dash.tls.certResolver=letsencrypt
+      #- traefik.http.middlewares.traefik-dash-auth.basicauth.users=${TRAEFIK_USERS}
+      - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
+
+  goaccess:
+    image: xavierh/goaccess-for-nginxproxymanager:latest
+    container_name: goaccess
+    restart: unless-stopped
+    networks:
+      - nginx_net
+    #ports:
+      #- '7880:7880'
+    environment:
+      - PUID=1050
+      - PGID=1050
+      - TZ=America/Chicago
+      - SKIP_ARCHIVED_LOGS=False #optional
+      - DEBUG=False #optional
+      - BASIC_AUTH=False #optional
+      #- BASIC_AUTH_USERNAME=user #optional
+      #- BASIC_AUTH_PASSWORD=pass #optional
+      - EXCLUDE_IPS=127.0.0.1,10.118.100.0/24 #optional - comma delimited
+      - LOG_TYPE=TRAEFIK #optional - more information below
+    volumes:
+      - /docker/traefik/${SERVER}/logs:/opt/log
+      # - /var/log/nginx:/opt/custom #optional required if using log_type = CUSTOM
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.traefik-stats.rule=Host(`stats-${SERVER}.${DOMAIN}`)
+      - traefik.http.routers.traefik-stats.tls=true
+      - traefik.http.routers.traefik-stats.tls.certResolver=letsencrypt
+      - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
