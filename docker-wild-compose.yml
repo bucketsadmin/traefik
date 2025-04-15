@@ -68,11 +68,12 @@ services:
       # Dashboard config
       - traefik.enable=true
       - traefik.http.routers.traefik-dash.rule=Host(`${SERVER}.${DOMAIN}`)
+      - traefik.http.routers.traefik-dash.entrypoints=websecure
       - traefik.http.routers.traefik-dash.service=api@internal
-      #- traefik.http.routers.traefik-dash.middlewares=traefik-dash-auth
-      - traefik.http.routers.traefik-dash.tls=true
       - traefik.http.routers.traefik-dash.tls.certResolver=letsencrypt
-      #- traefik.http.middlewares.traefik-dash-auth.basicauth.users=${TRAEFIK_USERS}
+      # - traefik.http.routers.traefik-dash.middlewares=traefik-dash-auth
+      # - traefik.http.routers.traefik-dash.tls=true
+      # - traefik.http.middlewares.traefik-dash-auth.basicauth.users=${TRAEFIK_USERS}
       - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
 
   goaccess:
