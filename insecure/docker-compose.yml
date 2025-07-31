@@ -1,0 +1,79 @@
+---
+networks:
+  nginx_net:
+    name: nginx_net
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.118.100.0/24"
+          gateway: "10.118.100.1"
+
+x-base: &base
+  restart: unless-stopped
+  mem_limit: 256m # Override per container if necessary
+  pids_limit: 200
+  cpus: "1" # Set below the total number of cores, for example 3.5 for 4 cores
+  logging:
+    options:
+      max-size: "10m"
+      max-file: "3"
+  security_opt:
+    - no-new-privileges=true
+
+services:
+  traefik:
+    <<: *base
+    image: traefik:latest
+    container_name: traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - nginx_net
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - /docker/traefik/${SERVER}/letsencrypt:/etc/traefik/acme
+      - /docker/traefik/${SERVER}/logs:/opt/logs
+    environment:
+      - TZ=${TZ}
+      - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+      - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
+      - CLOUDFLARE_ZONE_API_TOKEN=${CLOUDFLARE_ZONE_API_TOKEN}
+      - LETS_ENCRYPT_EMAIL=${LETS_ENCRYPT_EMAIL}
+    command:
+      # access log
+      - --accesslog=true
+      - --accesslog.filepath=/opt/logs/access.log
+      - --log.filePath=/opt/logs/traefik.log
+      # Enable dashboard
+      - --api.dashboard=true
+      # Providers
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      # Entrypoints
+      - --entrypoints=Name:http Address::80 Redirect.EntryPoint:https
+      - --entrypoints=Name:https Address::443 TLS
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entryPoints.web.forwardedHeaders.trustedIPs=10.0.0.0/8
+      - --entryPoints.websecure.forwardedHeaders.trustedIPs=10.0.0.0/8
+      # Certificates
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.email=${LETS_ENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
+      # needed so internal DNS doesn't dick with things
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+    labels:
+      # Dashboard config
+      - traefik.enable=true
+      - traefik.http.routers.traefik-dash.rule=Host(`${SERVER}.${DOMAIN}`)
+      - traefik.http.routers.traefik-dash.service=api@internal
+      - traefik.http.routers.traefik-dash.tls=true
+      - traefik.http.routers.traefik-dash.tls.certResolver=letsencrypt
+      - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
+  
