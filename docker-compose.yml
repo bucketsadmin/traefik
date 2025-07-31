@@ -9,8 +9,21 @@ networks:
         - subnet: "10.118.100.0/24"
           gateway: "10.118.100.1"
 
+x-base: &base
+  restart: unless-stopped
+  mem_limit: 256m # Override per container if necessary
+  pids_limit: 200
+  cpus: "1" # Set below the total number of cores, for example 3.5 for 4 cores
+  logging:
+    options:
+      max-size: "10m"
+      max-file: "3"
+  security_opt:
+    - no-new-privileges=true
+
 services:
   traefik:
+    <<: *base
     image: traefik:latest
     container_name: traefik
     restart: always
@@ -24,6 +37,7 @@ services:
       - /docker/traefik/${SERVER}/letsencrypt:/etc/traefik/acme
       - /docker/traefik/${SERVER}/logs:/opt/logs
     environment:
+      - TZ=${TZ}
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
       - CLOUDFLARE_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
       - CLOUDFLARE_ZONE_API_TOKEN=${CLOUDFLARE_ZONE_API_TOKEN}
@@ -38,8 +52,6 @@ services:
       # Providers
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
-      # Skip internal cert check
-      - --serversTransport.insecureSkipVerify=true
       # Entrypoints
       - --entrypoints=Name:http Address::80 Redirect.EntryPoint:https
       - --entrypoints=Name:https Address::443 TLS
@@ -56,45 +68,30 @@ services:
       - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
       # needed so internal DNS doesn't dick with things
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
-      # CF Middleware
-      - --experimental.plugins.cloudflarewarp.modulename=github.com/BetterCorp/cloudflarewarp
-      - --experimental.plugins.cloudflarewarp.version=v1.3.3
     labels:
       # Dashboard config
       - traefik.enable=true
       - traefik.http.routers.traefik-dash.rule=Host(`${SERVER}.${DOMAIN}`)
       - traefik.http.routers.traefik-dash.service=api@internal
-      #- traefik.http.routers.traefik-dash.middlewares=traefik-dash-auth
       - traefik.http.routers.traefik-dash.tls=true
       - traefik.http.routers.traefik-dash.tls.certResolver=letsencrypt
-      #- traefik.http.middlewares.traefik-dash-auth.basicauth.users=${TRAEFIK_USERS}
       - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
-
-  goaccess:
-    image: xavierh/goaccess-for-nginxproxymanager:latest
-    container_name: goaccess
-    restart: unless-stopped
-    networks:
-      - nginx_net
-    #ports:
-      #- '7880:7880'
-    environment:
-      - PUID=1050
-      - PGID=1050
-      - TZ=America/Chicago
-      - SKIP_ARCHIVED_LOGS=False #optional
-      - DEBUG=False #optional
-      - BASIC_AUTH=False #optional
-      #- BASIC_AUTH_USERNAME=user #optional
-      #- BASIC_AUTH_PASSWORD=pass #optional
-      - EXCLUDE_IPS=127.0.0.1,10.118.100.0/24 #optional - comma delimited
-      - LOG_TYPE=TRAEFIK #optional - more information below
-    volumes:
-      - /docker/traefik/${SERVER}/logs:/opt/log
-      # - /var/log/nginx:/opt/custom #optional required if using log_type = CUSTOM
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.traefik-stats.rule=Host(`stats-${SERVER}.${DOMAIN}`)
-      - traefik.http.routers.traefik-stats.tls=true
-      - traefik.http.routers.traefik-stats.tls.certResolver=letsencrypt
-      - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
+  
+  # logrotate:
+  #   image: blacklabelops/logrotate:latest
+  #   container_name: logrotate
+  #   restart: unless-stopped
+  #   environment:
+  #     LOGROTATE_COMPRESSION: compress
+  #     #LOGROTATE_DATEFORMAT: -%Y%m%d
+  #     LOGROTATE_INTERVAL: hourly
+  #     LOGROTATE_MAXAGE: 60
+  #     LOGROTATE_SIZE: 100M
+  #     LOGROTATE_COPIES: 5
+  #     LOGROTATE_MODE: create
+  #     TZ: America/Chicago
+  #     LOGS_DIRECTORIES: /var/lib/docker/containers
+  #   volumes:
+  #     - '/docker/traefik/:/var/lib/docker/containers'
+  #   networks:
+  #     - nginx_net
