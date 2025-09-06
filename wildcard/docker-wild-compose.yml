@@ -71,4 +71,12 @@ services:
       - traefik.http.routers.traefik-dash.entrypoints=websecure
       - traefik.http.routers.traefik-dash.service=api@internal
       - traefik.http.routers.traefik-dash.tls.certResolver=letsencrypt
-      - traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https
+      - traefik.http.routers.traefik-dash.middlewares=mw_compress,mw_headers,mw_xff
+      - traefik.http.middlewares.mw_xff.headers.customrequestheaders.X-Forwarded-Proto=https
+      - traefik.http.middlewares.mw_compress.compress=true
+      - traefik.http.middlewares.mw_headers.headers.browserXssFilter=true
+      - traefik.http.middlewares.mw_headers.headers.forceSTSHeader=true
+      - traefik.http.middlewares.mw_headers.headers.frameDeny=true
+      - traefik.http.middlewares.mw_headers.headers.referrerPolicy=no-referrer-when-downgrade
+      - traefik.http.middlewares.mw_headers.headers.stsSeconds=31536000
+
