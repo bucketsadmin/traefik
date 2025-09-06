@@ -52,6 +52,7 @@ services:
       # Providers
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
+      # Skip internal cert check
       - --serversTransport.insecureSkipVerify=true
       # Entrypoints
       - --entrypoints=Name:http Address::80 Redirect.EntryPoint:https
