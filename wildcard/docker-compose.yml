@@ -61,9 +61,6 @@ services:
       - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
       # needed so internal DNS doesn't dick with things
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
-      # CF Middleware
-      - --experimental.plugins.cloudflarewarp.modulename=github.com/BetterCorp/cloudflarewarp
-      - --experimental.plugins.cloudflarewarp.version=v1.3.3
     labels:
       # Dashboard config
       - traefik.enable=true
