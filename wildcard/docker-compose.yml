@@ -40,25 +40,21 @@ services:
       - --providers.docker.exposedbydefault=false
       # Skip internal cert check
       - --serversTransport.insecureSkipVerify=true
-      # Entrypoints
-      - --entrypoints=Name:http Address::80 Redirect.EntryPoint:https
-      - --entrypoints=Name:https Address::443 TLS
+      # Set up LetsEncrypt
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.email=${LETS_ENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      # Set up an insecure listener that redirects all traffic to TLS
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       - --entrypoints.websecure.address=:443
-      - --entryPoints.web.forwardedHeaders.trustedIPs=10.0.0.0/8
-      - --entryPoints.websecure.forwardedHeaders.trustedIPs=10.0.0.0/8
       # Set up the TLS configuration for our websecure listener
       - --entrypoints.websecure.http.tls=true
       - --entrypoints.websecure.http.tls.certResolver=letsencrypt
       - --entrypoints.websecure.http.tls.domains[0].main=${DOMAIN}
       - --entrypoints.websecure.http.tls.domains[0].sans=*.${DOMAIN}
-      # Certificates
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
-      - --certificatesresolvers.letsencrypt.acme.email=${LETS_ENCRYPT_EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/acme.json
       # needed so internal DNS doesn't dick with things
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
     labels:
