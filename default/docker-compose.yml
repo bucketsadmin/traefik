@@ -90,6 +90,8 @@ services:
     image: hhftechnology/traefik-log-dashboard-agent:latest
     container_name: traefik-agent
     restart: unless-stopped
+    networks:
+      - nginx_net
     ports:
       - "5000:5000"
     volumes:
