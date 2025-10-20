@@ -73,3 +73,20 @@ services:
       - traefik.http.middlewares.mw_headers.headers.referrerPolicy=no-referrer-when-downgrade
       - traefik.http.middlewares.mw_headers.headers.stsSeconds=31536000
 
+  traefik-agent:
+    image: hhftechnology/traefik-log-dashboard-agent:latest
+    container_name: traefik-agent
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - /docker/traefik/${SERVER}/logs:/logs:ro
+      - /docker/traefik/geoip:/geoip:ro
+      - /docker/traefik/geoip/positions/${SERVER}:/data
+    environment:
+      - TRAEFIK_LOG_DASHBOARD_SYSTEM_MONITORING=true
+      - TRAEFIK_LOG_DASHBOARD_ACCESS_PATH=/logs/access.log
+      - TRAEFIK_LOG_DASHBOARD_AUTH_TOKEN=${DASHBOARD_TOKEN}
+      - TRAEFIK_LOG_DASHBOARD_GEOIP_ENABLED=true
+      - TRAEFIK_LOG_DASHBOARD_GEOIP_CITY_DB=/geoip/GeoLite2-City.mmdb
+      - TRAEFIK_LOG_DASHBOARD_GEOIP_COUNTRY_DB=/geoip/GeoLite2-Country.mmdb
