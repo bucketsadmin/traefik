@@ -100,7 +100,7 @@ services:
       - /docker/traefik/geoip:/geoip:ro
       - /docker/traefik/geoip/positions/${SERVER}:/data
     environment:
-      - TRAEFIK_LOG_DASHBOARD_SYSTEM_MONITORING=true
+      - TRAEFIK_LOG_DASHBOARD_SYSTEM_MONITORING=false
       - TRAEFIK_LOG_DASHBOARD_ACCESS_PATH=/logs/access.log
       - TRAEFIK_LOG_DASHBOARD_ERROR_PATH=/logs/traefik.log
       - TRAEFIK_LOG_DASHBOARD_AUTH_TOKEN=${DASHBOARD_TOKEN}
