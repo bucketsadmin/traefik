@@ -52,6 +52,8 @@ services:
       # Providers
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
+      - --providers.docker.endpoint=tcp://socket-proxy:2375 # Enable for Socket Proxy. Disable otherwise.
+      - --providers.docker.network=nginx_net 
       # Skip internal cert check
       - --serversTransport.insecureSkipVerify=true
       # Entrypoints
@@ -85,3 +87,57 @@ services:
       - traefik.http.middlewares.mw_headers.headers.frameDeny=true
       - traefik.http.middlewares.mw_headers.headers.referrerPolicy=no-referrer-when-downgrade
       - traefik.http.middlewares.mw_headers.headers.stsSeconds=31536000
+
+# Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
+  socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:latest
+    container_name: socket-proxy
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    # profiles: ["core", "all"]
+    networks:
+      - nginx_net
+    privileged: true # true for VM. False (default) for unprivileged LXC container.
+    # ports:
+      #- "2375:2375"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    read_only: true
+    tmpfs:
+      - /run
+    environment:
+      - TZ=${TZ}
+      - LOG_LEVEL=warning # debug,info,notice,warning,err,crit,alert,emerg
+      ## Container actions
+      - ALLOW_START=0 # Portainer
+      - ALLOW_STOP=0 # Portainer
+      - ALLOW_RESTARTS=0 # Portainer
+      ## Granted by Default
+      - EVENTS=1
+      - PING=1
+      - VERSION=1
+      ## Revoked by Default
+      # Security critical
+      - AUTH=0
+      - SECRETS=0
+      - POST=0 # Watchtower
+      # Not always needed
+      - BUILD=0
+      - COMMIT=0
+      - CONFIGS=0
+      - CONTAINERS=1 # Traefik, portainer, etc.
+      - DISTRIBUTION=0
+      - EXEC=0
+      - IMAGES=0 # Portainer
+      - INFO=0 # Portainer
+      - NETWORKS=0 # Portainer
+      - NODES=0
+      - PLUGINS=0
+      - SERVICES=0 # Portainer
+      - SESSION=0
+      - SWARM=0
+      - SYSTEM=0
+      - TASKS=0 # Portainer
+      - VOLUMES=0 # Portainer
+      - DISABLE_IPV6=1 #optional
