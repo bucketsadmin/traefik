@@ -6,5 +6,13 @@
   "assignees": ["jjsimpson"],
   "labels": ["renovate"],
   "configMigration": true,
-  "prHourlyLimit": 0
+  "prHourlyLimit": 0,
+  "docker-compose": {
+    "hostRules": [
+      {
+        "matchHost": "docker.io",
+        "concurrentRequestLimit": 2
+      }
+    ]
+  }
 }
