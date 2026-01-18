@@ -33,7 +33,6 @@ services:
     networks:
       - nginx_net
     volumes:
-#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - /docker/traefik/${SERVER}/letsencrypt:/etc/traefik/acme
       - /docker/traefik/${SERVER}/logs:/opt/logs
     environment:
