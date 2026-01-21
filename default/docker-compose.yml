@@ -39,7 +39,7 @@ services:
       - nginx_net
     volumes:
       - /docker/traefik/${SERVER}/letsencrypt:/etc/traefik/acme
-      - /docker/traefik/${SERVER}/logs:/opt/logs
+      - traefik_logs:/opt/logs
     environment:
       - TZ=${TZ}
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
