@@ -9,6 +9,11 @@ networks:
         - subnet: "10.118.100.0/24"
           gateway: "10.118.100.1"
 
+volumes:
+  traefik_logs:
+    name: traefik_logs
+    driver: local
+
 x-base: &base
   restart: unless-stopped
   mem_limit: 256m # Override per container if necessary
