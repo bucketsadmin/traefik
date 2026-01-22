@@ -48,7 +48,6 @@ services:
       - LETS_ENCRYPT_EMAIL=${LETS_ENCRYPT_EMAIL}
     command:
       # access log
-      # access log
       - --accesslog=true
       - --accesslog.filepath=/opt/logs/access.log
       - --accesslog.format=json
@@ -56,11 +55,7 @@ services:
       - --accesslog.filters.retryattempts
       - --accesslog.filters.minduration=10ms
       - --accesslog.fields.defaultmode=keep
-      - --accesslog.fields.names.ClientUsername=drop
       - --accesslog.fields.headers.defaultmode=keep
-      - --accesslog.fields.headers.names.User-Agent=redact
-      - --accesslog.fields.headers.names.Authorization=drop
-      - --accesslog.fields.headers.names.cookie=drop
       - --log.filePath=/opt/logs/traefik.log
       - --log.format=json
       - --log.level=INFO
