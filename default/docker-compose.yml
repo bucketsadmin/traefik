@@ -13,6 +13,9 @@ volumes:
   traefik_logs:
     name: traefik_logs
     driver: local
+  agent_data:
+    name: agent_data
+    driver: local
 
 x-base: &base
   restart: unless-stopped
