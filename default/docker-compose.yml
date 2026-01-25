@@ -9,6 +9,11 @@ networks:
         - subnet: "10.118.100.0/24"
           gateway: "10.118.100.1"
 
+volumes:
+  traefik_logs:
+    name: traefik_logs
+    driver: local
+
 x-base: &base
   restart: unless-stopped
   mem_limit: 256m # Override per container if necessary
@@ -34,7 +39,7 @@ services:
       - nginx_net
     volumes:
       - /docker/traefik/${SERVER}/letsencrypt:/etc/traefik/acme
-      - /docker/traefik/${SERVER}/logs:/opt/logs
+      - traefik_logs:/opt/logs
     environment:
       - TZ=${TZ}
       - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
@@ -45,7 +50,15 @@ services:
       # access log
       - --accesslog=true
       - --accesslog.filepath=/opt/logs/access.log
+      - --accesslog.format=json
+      - --accesslog.filters.statuscodes=200,300-302
+      - --accesslog.filters.retryattempts
+      - --accesslog.filters.minduration=10ms
+      - --accesslog.fields.defaultmode=keep
+      - --accesslog.fields.headers.defaultmode=keep
       - --log.filePath=/opt/logs/traefik.log
+      - --log.format=json
+      - --log.level=INFO
       # Enable dashboard
       - --api.dashboard=true
       # Providers
@@ -86,6 +99,36 @@ services:
       - traefik.http.middlewares.mw_headers.headers.frameDeny=true
       - traefik.http.middlewares.mw_headers.headers.referrerPolicy=no-referrer-when-downgrade
       - traefik.http.middlewares.mw_headers.headers.stsSeconds=31536000
+
+  traefik-agent:
+    image: hhftechnology/traefik-log-dashboard-agent:2.4.1
+    container_name: traefik-log-dashboard-agent
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - traefik_logs:/logs:ro
+      - agent_data:/data
+    environment:
+      # Log Paths
+      - TRAEFIK_LOG_DASHBOARD_ACCESS_PATH=/logs/access.log
+      - TRAEFIK_LOG_DASHBOARD_ERROR_PATH=/logs/traefik.log
+      # Authentication - REPLACE WITH YOUR TOKEN
+      - TRAEFIK_LOG_DASHBOARD_AUTH_TOKEN=${AGENT_TOKEN}
+      # System Monitoring
+      - TRAEFIK_LOG_DASHBOARD_SYSTEM_MONITORING=true
+      # Log Format
+      - TRAEFIK_LOG_DASHBOARD_LOG_FORMAT=json
+      # Server Port
+      - PORT=5000
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/logs/status"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - nginx_net
 
 # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
