@@ -104,7 +104,7 @@ services:
       - traefik.http.middlewares.mw_headers.headers.stsSeconds=31536000
 
   traefik-agent:
-    image: hhftechnology/traefik-log-dashboard-agent:2.4.1
+    image: hhftechnology/traefik-log-dashboard-agent:2.5.0
     container_name: traefik-log-dashboard-agent
     restart: unless-stopped
     ports:
