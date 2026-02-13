@@ -16,6 +16,9 @@ volumes:
   agent_data:
     name: agent_data
     driver: local
+  logrotate_status:
+    name: logrotate-status
+    driver: local
 
 x-base: &base
   restart: unless-stopped
@@ -186,3 +189,23 @@ services:
       - TASKS=0 # Portainer
       - VOLUMES=0 # Portainer
       - DISABLE_IPV6=1 #optional
+
+  logrotate:
+    <<: *base
+    image: blacklabelops/logrotate:latest@sha256:5ac65cf975fa4c7909f7b483e41a4a6c3d09932dcf92ca8618cb2a8d295aef47
+    container_name: logrotate
+    environment:
+      LOGROTATE_COMPRESSION: compress
+      #LOGROTATE_DATEFORMAT: -%Y%m%d
+      LOGROTATE_INTERVAL: hourly
+      LOGROTATE_MAXAGE: 60
+      LOGROTATE_SIZE: 200M
+      LOGROTATE_COPIES: 5
+      LOGROTATE_MODE: create
+      TZ: America/Chicago
+      LOGS_DIRECTORIES: /var/lib/docker/containers
+    volumes:
+      - 'traefik_logs:/var/lib/docker/containers'
+      - 'logrotate_status:/logrotate-status'
+    networks:
+      - nginx_net
