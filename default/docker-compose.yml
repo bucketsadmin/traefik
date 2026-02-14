@@ -203,9 +203,10 @@ services:
       LOGROTATE_COPIES: 5
       LOGROTATE_MODE: create
       TZ: America/Chicago
-      LOGS_DIRECTORIES: /var/lib/docker/containers
+      LOGS_DIRECTORIES: /var/log/traefik
+      LOGROTATE_STATUSFILE: /logrotate-status/logrotate.status
     volumes:
-      - 'traefik_logs:/var/lib/docker/containers'
+      - 'traefik_logs:/var/log/traefik'
       - 'logrotate_status:/logrotate-status'
     networks:
       - nginx_net
