@@ -191,6 +191,7 @@ services:
       - DISABLE_IPV6=1 #optional
 
   logrotate:
+    <<: *base
     image: vegardit/traefik-logrotate:latest@sha256:b7b0ec044f3a0a1200dffb497a911cb02cbe531bb6408fe3ab36220cfcf071a6
     container_name: traefik-logrotate
     restart: unless-stopped
@@ -216,10 +217,6 @@ services:
       TRAEFIK_CONTAINER_ID_COMMAND: docker ps --no-trunc --quiet --filter label=org.opencontainers.image.title=Traefik
       # optional: command to run after log rotation, e.g. restart goaccess or call a custom script
       POST_LOGROTATE_COMMAND: ""         # example: "docker restart goaccess" or "/opt/post-logrotate.sh"
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
     networks:
       - nginx_net
 
