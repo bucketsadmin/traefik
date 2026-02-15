@@ -190,6 +190,39 @@ services:
       - VOLUMES=0 # Portainer
       - DISABLE_IPV6=1 #optional
 
+  logrotate:
+    image: vegardit/traefik-logrotate:latest@sha256:b7b0ec044f3a0a1200dffb497a911cb02cbe531bb6408fe3ab36220cfcf071a6
+    container_name: traefik-logrotate
+    restart: unless-stopped
+    volumes:
+      - traefik_logs:/var/log/traefik:rw # folder containing access.log file
+    environment:
+      DOCKER_HOST: tcp://socket-proxy:2375
+      TZ: ${TZ}
+      # all environment variables are optional and show the default values:
+      LOGROTATE_LOGS: "/var/log/traefik/*.log" # log files to rotate, directory must match volume mount
+      LOGROTATE_TRIGGER_INTERVAL: daily  # rotate daily, must be one of: daily, weekly, monthly, yearly
+      LOGROTATE_TRIGGER_SIZE: 150M       # rotate if log file size reaches 150MB
+      LOGROTATE_MAX_BACKUPS: 7           # keep 14 backup copies per rotated log file
+      LOGROTATE_START_INDEX: 1           # first rotated file is called access.1.log (ignored when dateext is enabled)
+      LOGROTATE_USE_DATEEXT: false       # use date extension instead of numbers (e.g., access.log-20240814)
+      LOGROTATE_DATEFORMAT: "-%Y%m%d"    # date format for rotated files when dateext is enabled
+      LOGROTATE_FILE_MODE: 0644          # file mode of the rotated file
+      LOGROTATE_FILE_USER: root          # owning user of the rotated file
+      LOGROTATE_FILE_GROUP: root         # owning group of the rotated file
+      CRON_SCHEDULE: "* * * * *"
+      CRON_LOG_LEVEL: 8                  # see https://unix.stackexchange.com/a/414010/378036
+      # command to determine the id of the container running Traefik:
+      TRAEFIK_CONTAINER_ID_COMMAND: docker ps --no-trunc --quiet --filter label=org.opencontainers.image.title=Traefik
+      # optional: command to run after log rotation, e.g. restart goaccess or call a custom script
+      POST_LOGROTATE_COMMAND: ""         # example: "docker restart goaccess" or "/opt/post-logrotate.sh"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+    networks:
+      - nginx_net
+
 #  logrotate:
 #    <<: *base
 #    image: blacklabelops/logrotate:latest@sha256:5ac65cf975fa4c7909f7b483e41a4a6c3d09932dcf92ca8618cb2a8d295aef47
