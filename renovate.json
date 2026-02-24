@@ -1,18 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Renovate Dashboard",
-  "assignees": ["jjsimpson"],
-  "labels": ["renovate"],
-  "configMigration": true,
-  "prHourlyLimit": 0,
-  "docker-compose": {
-    "hostRules": [
-      {
-        "matchHost": "docker.io",
-        "concurrentRequestLimit": 2
-      }
-    ]
-  }
+  "extends": ["local>renovate_bot/renovate//defaults/docker/default.json"]
 }
