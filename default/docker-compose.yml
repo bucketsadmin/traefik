@@ -93,11 +93,11 @@ services:
     labels:
       # Dashboard config
       - traefik.enable=true
-      - traefik.http.routers.traefik-dash.rule=Host(`${SERVER}.${DOMAIN}`)
-      - traefik.http.routers.traefik-dash.service=api@internal
-      - traefik.http.routers.traefik-dash.tls=true
-      - traefik.http.routers.traefik-dash.tls.certResolver=letsencrypt
-      - traefik.http.routers.traefik-dash.middlewares=mw_compress,mw_headers,mw_xff
+      - traefik.http.routers.rtr-traefik-dash.rule=Host(`${SERVER}.${DOMAIN}`)
+      - traefik.http.routers.rtr-traefik-dash.service=api@internal
+      - traefik.http.routers.rtr-traefik-dash.tls=true
+      - traefik.http.routers.rtr-traefik-dash.tls.certResolver=letsencrypt
+      - traefik.http.routers.rtr-traefik-dash.middlewares=mw_compress,mw_headers,mw_xff
       ### enable compression
       - traefik.http.middlewares.mw_compress.compress=true
       ### send xff
@@ -190,7 +190,7 @@ services:
       LOGROTATE_FILE_MODE: 0644          # file mode of the rotated file
       LOGROTATE_FILE_USER: root          # owning user of the rotated file
       LOGROTATE_FILE_GROUP: root         # owning group of the rotated file
-      CRON_SCHEDULE: "* * * * *"
+      CRON_SCHEDULE: "0 18 * * *"
       CRON_LOG_LEVEL: 8                  # see https://unix.stackexchange.com/a/414010/378036
       # command to determine the id of the container running Traefik:
       TRAEFIK_CONTAINER_ID_COMMAND: docker ps --no-trunc --quiet --filter label=org.opencontainers.image.title=Traefik
