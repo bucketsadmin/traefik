@@ -125,7 +125,8 @@ services:
       - no-new-privileges:true
     # profiles: ["core", "all"]
     networks:
-      - nginx_net
+      nginx_net:
+        ipv4_address: 10.118.100.201
     privileged: true # true for VM. False (default) for unprivileged LXC container.
     # ports:
       #- "2375:2375"
@@ -198,5 +199,5 @@ services:
       # optional: command to run after log rotation, e.g. restart goaccess or call a custom script
       POST_LOGROTATE_COMMAND: ""         # example: "docker restart goaccess" or "/opt/post-logrotate.sh"
     networks:
-      - nginx_net
-
+      nginx_net:
+        ipv4_address: 10.118.100.202
