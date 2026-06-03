@@ -79,7 +79,7 @@ services:
       - --entrypoints=Name:http Address::80 Redirect.EntryPoint:https
       - --entrypoints.web.address=:80
       - --entryPoints.web.forwardedHeaders.trustedIPs=10.0.0.0/8
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+#      - --entrypoints.web.http.redirections.entrypoint.to=websecure
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
       # Entrypoints - websecure
       - --entrypoints=Name:https Address::443 TLS
