@@ -43,7 +43,6 @@ The default MWs are currently applied to the Traefik dashboard.
       - traefik.docker.network=nginx_net
       - traefik.http.routers.rtr-app.rule=Host(`${SUB}.${DOMAIN}`)
       - traefik.http.routers.rtr-app.service=srv-app
-      - traefik.http.routers.rtr-app.tls.certResolver=letsencrypt
       - traefik.http.routers.rtr-app.entrypoints=websecure
       - traefik.http.services.srv-app.loadbalancer.server.port=3099
       - traefik.http.services.srv-app.loadbalancer.passhostheader=true
@@ -56,3 +55,4 @@ To activate a unique certificate for each individual domain add the following li
 
 
      - traefik.http.routers.rtr-app.tls=true
+     - traefik.http.routers.rtr-app.tls.certResolver=letsencrypt
