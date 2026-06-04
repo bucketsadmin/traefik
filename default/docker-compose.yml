@@ -98,7 +98,6 @@ services:
       - traefik.enable=true
       - traefik.http.routers.rtr-traefik-dash.rule=Host(`${SERVER}.${DOMAIN}`)
       - traefik.http.routers.rtr-traefik-dash.service=api@internal
-      - traefik.http.routers.rtr-traefik-dash.tls.certResolver=letsencrypt
       - traefik.http.routers.rtr-traefik-dash.entrypoints=websecure
       - traefik.http.routers.rtr-traefik-dash.middlewares=mw_compress,mw_headers,mw_xff
       ### enable compression
