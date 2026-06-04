@@ -3,7 +3,7 @@
 Repo for default Traefik docker compose.
 
 ## Default
-Default compose file is located in /default and has the insecure backend flag set
+Default compose file is located in ```/default``` and has the insecure backend flag set
 
 Wildcard certificate generated for containers not using the tls flag
 
@@ -14,7 +14,7 @@ The default MWs are currently applied to the Traefik dashboard.
 
 - compression
 - XFF
-- Frame deny
+- headers
 
 
 
