@@ -98,7 +98,7 @@ services:
       - traefik.http.routers.rtr-traefik-dash.rule=Host(`${SERVER}.${DOMAIN}`)
       - traefik.http.routers.rtr-traefik-dash.service=api@internal
       - traefik.http.routers.rtr-traefik-dash.entrypoints=websecure
-      - traefik.http.routers.rtr-traefik-dash.middlewares=mw_compress,mw_headers,mw_xff
+      - traefik.http.routers.rtr-traefik-dash.middlewares=mw_compress,mw_headers,mw_xff,mw_ratelimit
       ### enable compression
       - traefik.http.middlewares.mw_compress.compress=true
       ### send xff
@@ -115,6 +115,10 @@ services:
       - traefik.http.middlewares.mw_headers_frame.headers.frameDeny=false
       - traefik.http.middlewares.mw_headers_frame.headers.referrerPolicy=no-referrer-when-downgrade
       - traefik.http.middlewares.mw_headers_frame.headers.stsSeconds=31536000
+      ### rate limiting
+      - traefik.http.middlewares.mw_ratelimit.ratelimit.average=100
+      - traefik.http.middlewares.mw_ratelimit.ratelimit.period=1s
+      - traefik.http.middlewares.mw_ratelimit.ratelimit.burst=200
 
 # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
