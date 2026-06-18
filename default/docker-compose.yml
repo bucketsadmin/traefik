@@ -208,7 +208,7 @@ services:
 
   traefik-log-agent:
     <<: *base
-    image: hhftechnology/traefik-log-dashboard-agent:2.5.0
+    image: hhftechnology/traefik-log-dashboard-agent:3.1.1@sha256:4c9853d486a0e3108678fd00aeda86ce1b269c0ae1b1c2ab9e5c81760e12d53a
     container_name: traefik-log-dashboard-agent
     restart: unless-stopped
     ports:
