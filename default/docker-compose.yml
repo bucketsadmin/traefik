@@ -223,7 +223,7 @@ services:
       # Authentication - REPLACE WITH YOUR TOKEN
       - TRAEFIK_LOG_DASHBOARD_AUTH_TOKEN=${AGENT_TOKEN}
       # System Monitoring
-      - TRAEFIK_LOG_DASHBOARD_SYSTEM_MONITORING=false
+#      - TRAEFIK_LOG_DASHBOARD_SYSTEM_MONITORING=false
       # Log Format
       - TRAEFIK_LOG_DASHBOARD_LOG_FORMAT=json
       # Server Port
