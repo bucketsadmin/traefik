@@ -122,7 +122,7 @@ services:
 
 # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
-    image: lscr.io/linuxserver/socket-proxy:3.2.15@sha256:2a37bf384164425fc7019fb5a27e125afc047a1763b2961eea9338c60e1e14f6
+    image: lscr.io/linuxserver/socket-proxy:3.4.3@sha256:5253050dd304d351df2ee61bba43c57dd2b19bb640497a679592051de3a3c639
     container_name: traefik-socket-proxy
     restart: always
     security_opt:
