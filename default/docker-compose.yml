@@ -122,7 +122,7 @@ services:
 
 # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
-    image: lscr.io/linuxserver/socket-proxy:3.4.3@sha256:a6b52255f881951c3cb6b6cce78c3d91435ed201cf16ab77bfe92e9a8ee13121
+    image: lscr.io/linuxserver/socket-proxy:3.4.3@sha256:165670d41ce04c44c271075e4be87f6de17633478eae817ed967d71755de650b
     container_name: traefik-socket-proxy
     restart: always
     security_opt:
@@ -177,7 +177,7 @@ services:
 
   logrotate:
     <<: *base
-    image: vegardit/traefik-logrotate:latest@sha256:f81af34d196a2f195d8b217d173efd65a6da5b3341e3b76b3826c0d4b80eb998
+    image: vegardit/traefik-logrotate:latest@sha256:c8757843be0a420166f1326e0edef1623cce17f1422d0b36d02501067cdd58fe
     container_name: traefik-logrotate
     restart: unless-stopped
     volumes:
