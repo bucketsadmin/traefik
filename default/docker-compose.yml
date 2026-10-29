@@ -177,7 +177,7 @@ services:
 
   logrotate:
     <<: *base
-    image: vegardit/traefik-logrotate:latest@sha256:82624de48d6cb2a336b172115aad882ec7ed1f20b84d26275043649fe06eae24
+    image: vegardit/traefik-logrotate:latest@sha256:ebe5be22ec8e8826f6bb6d68cdd8ed3b1467389c364e70967d74b26799a4b49e
     container_name: traefik-logrotate
     restart: unless-stopped
     volumes:
