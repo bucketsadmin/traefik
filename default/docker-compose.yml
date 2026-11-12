@@ -35,7 +35,7 @@ x-base: &base
 services:
   traefik:
     <<: *base
-    image: ghcr.io/traefik/traefik:v3.7.18@sha256:af6e7de981b23d51d8d967e0e508af6a8673f29831138720ab854617fd1b1229
+    image: ghcr.io/traefik/traefik:v3.7.18@sha256:9c437ac4f09ce6f4980a8544902d3475fdf70a1a7c578729581d2535dfa7d635
     container_name: traefik
     restart: always
     ports:
@@ -177,7 +177,7 @@ services:
 
   logrotate:
     <<: *base
-    image: vegardit/traefik-logrotate:latest@sha256:92fc5d22bb625310f1f97396f4c1d4762a49a3709c261c149e9524e1ae4827fa
+    image: vegardit/traefik-logrotate:latest@sha256:083a9d021f6295d755ec150cdc19a7db33b0e2eeb01e11d99ddf641b8398dcb8
     container_name: traefik-logrotate
     restart: unless-stopped
     volumes:
